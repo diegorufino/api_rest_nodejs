@@ -1,0 +1,19 @@
+{
+  "name": "api_rest_cha_rifa",
+  "version": "1.0.0",
+  "description": "API Rest para Cha Rifa\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D de Bebe em formato de rifa",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node",
+    "api",
+    "rest"
+  ],
+  "author": "Diego Rufino",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
