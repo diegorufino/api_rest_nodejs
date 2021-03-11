@@ -18,29 +18,17 @@ router.post('/', (req, res, next) => {
 // RETORNA UM PEDIDO ESPECIFICO
 router.get('/:id_pedido', (req, res, next) => {
     const id = req.params.id_pedido
-    if (id === 'especial') {
         res.status(200).send({
             mensagem: 'Voce descobriu o ID especial',
-            id: id
+            id_pedido: id
         });
-    }else{
-        res.status(200).send({
-            mensagem: 'Voce passou um ID'
-        });
-    }
-});
 
-// ALTERA UM PEDIDO
-router.patch('/', (req, res, next) => {
-    res.status(200).send({
-        mensagem: 'Usando o PATCH dentro da rota pedidos'
-    })
 });
 
 // EXCLUI UM PEDIDO
 router.delete('/', (req, res, next) => {
     res.status(200).send({
-        mensagem: 'Usando o DELETE dentro da rota pedidos'
+        mensagem: 'Pedido excluido'
     })
 });
 
