@@ -1,11 +1,12 @@
 const mysql = require('mysql2');
 
+// var connection = mysql.createConnection({
 var pool = mysql.createPool({
-    "user": "root", //process.env.MYSL_USER
-    "password": "", //process.env.MYSL_PASSWORD
-    "database": "ecommerce", //process.env.MYSL_DATABASE
-    "host": "locahost", //process.env.MYSL_HOST
-    "port": 3306 //process.env.MYSL_PORT
+    "user": process.env.MYSL_USER,
+    "password": process.env.MYSL_PASSWORD,
+    "database": process.env.MYSL_DATABASE,
+    "host": process.env.MYSL_HOST,
+    "port": process.env.MYSL_PORT
 });
 
 exports.pool = pool;

@@ -29,7 +29,8 @@ router.post('/', (req, res, next) => {
             [req.body.nome, req.body.preco],
             (error, resultado, field) => {
                 //para liberar a conexao, se nao ela vai continuar na fila e travar outros acessos
-                conn.release(); 
+                conn.release();
+                
                 if (error) { return res.status(500).send({ error: error, response: null }) }
                 res.status(201).send({
                     mensagem: 'Produto inserido com sucesso',
