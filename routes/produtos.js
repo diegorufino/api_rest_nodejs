@@ -4,17 +4,28 @@ const mysql = require('../mysql').pool;
 
 // RETORNA TODOS OS PRODUTOS
 router.get('/', (req, res, next) => {
-    // res.status(200).send({
-    //     mensagem: 'Retorna todos os produtos'
-    // });
-
     mysql.getConnection((error, conn) => {
         if (error) { return res.status(500).send({ error: error }) }
         conn.query(
             'SELECT * FROM produtos;',
-            (error, resultado, fields) => {
+            (error, result, fields) => {
+                const response = {
+                    quantidade: result.length,
+                    produtos: result.map(prod => {
+                        return {
+                            id_produto: prod.id_produto,
+                            nome: prod.nome,
+                            preco: prod.preco,
+                            request: {
+                                tipo: 'GET',
+                                descricao: 'Retorna os detalhes de um produto específico',
+                                url: 'http://localhost:3000/produtos/' + prod.id_produto
+                            }
+                        }
+                    })
+                }
                 if (error) { return res.status(500).send({ error: error }) }
-                return res.status(200).send({response: resultado})
+                return res.status(200).send({response})
             }
         )
     })
@@ -32,10 +43,20 @@ router.post('/', (req, res, next) => {
                 conn.release();
                 
                 if (error) { return res.status(500).send({ error: error, response: null }) }
-                res.status(201).send({
+                const response = {
                     mensagem: 'Produto inserido com sucesso',
-                    id_produto: resultado.insertId
-                })
+                    produtoCriado: {
+                        id_produto: resultado.id_produto,
+                        nome: req.body.nome,
+                        preco: req.body.preco,
+                        request: {
+                            tipo: 'POST',
+                            descricao: 'Retorna todos os produtos',
+                            url: 'http://localhost:3000/produtos'
+                        }
+                    }
+                }
+                return res.status(201).send(response)
             }
         )
     });
@@ -43,31 +64,100 @@ router.post('/', (req, res, next) => {
 
 // RETORNA UM PRODUTO ESPECIFICO
 router.get('/:id_produto', (req, res, next) => {
-    const id = req.params.id_produto
-    if (id === 'especial') {
-        res.status(200).send({
-            mensagem: 'Voce descobriu o ID especial',
-            id: id
-        });
-    }else{
-        res.status(200).send({
-            mensagem: 'Voce passou um ID'
-        });
-    }
+    mysql.getConnection((error, conn) => {
+        if (error) { return res.status(500).send({ error: error }) }
+        conn.query(
+            'SELECT * FROM produtos WHERE id_produto = ?;',
+            [req.params.id_produto],
+            (error, result, fields) => {
+                if (error) { return res.status(500).send({ error: error }) }
+
+                if (result.length == 0) {
+                    return res.status(404).send({
+                        mensagem: 'Não foi encontrado produto com este ID'
+                    })
+                }
+
+                const response = {
+                    
+                    produto: {
+                        id_produto: result[0].id_produto,
+                        nome: result[0].nome,
+                        preco: result[0].preco,
+                        request: {
+                            tipo: 'POST',
+                            descricao: 'Retorna um produto',
+                            url: 'http://localhost:3000/produtos'
+                        }
+                    }
+                }
+                return res.status(200).send(response)
+            }
+        )
+    })
 });
 
 // ALTERA UM PRODUTO
 router.patch('/', (req, res, next) => {
-    res.status(200).send({
-        mensagem: 'Usando o PATCH dentro da rota produtos'
-    })
+    mysql.getConnection((error, conn) => {
+        if (error) { return res.status(500).send({ error: error }) }
+        conn.query(
+            `UPDATE produtos
+                SET nome     = ?,
+                    preco    = ?
+            WHERE id_produto = ?`,
+            [
+                req.body.nome,
+                req.body.preco,
+                req.body.id_produto
+            ],
+            (error, result, field) => {
+                conn.release();
+                if (error) { return res.status(500).send({ error: error }) }
+                const response = {
+                    mensagem: 'Produto atualizado com sucesso',
+                    produtoAtualizado: {
+                        id_produto: req.body.id_produto,
+                        nome: req.body.nome,
+                        preco: req.body.preco,
+                        request: {
+                            tipo: 'GET',
+                            descricao: 'Retorna os detalhes de um produto específico',
+                            url: 'http://localhost:3000/produtos/' + req.body.id_produto
+                        }
+                    }
+                }
+                return res.status(202).send(response)
+            }
+        )
+    });
 });
 
 // EXCLUI UM PRODUTO
 router.delete('/', (req, res, next) => {
-    res.status(200).send({
-        mensagem: 'Produto excluido'
-    })
+    mysql.getConnection((error, conn) => {
+        if (error) { return res.status(500).send({ error: error }) }
+        conn.query(
+            `DELETE FROM produtos WHERE id_produto = ?`, [req.body.id_produto],
+            (error, result, field) => {
+                conn.release();
+                if (error) { return res.status(500).send({ error: error }) }
+                const response = {
+                    mensagem: 'Produto removido com sucesso',
+                    request: {
+                        tipo: 'POST',
+                        descricao: 'Insere um produto',
+                        url: 'http://localhost:3000/produtos',
+                        body: {
+                            nome: 'String',
+                            preco: 'Number'
+                        }
+                    }
+                }
+                return res.status(202).send(response)
+            }
+        )
+    });
 });
 
 module.exports = router;
